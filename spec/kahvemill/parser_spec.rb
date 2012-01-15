@@ -7,33 +7,27 @@ module KahveMill
       @parser = KahveMill::Parser.new
     end
 
-    describe 'integer' do
-      it 'accepts integer zero' do
-        @parser.parse("0")[:integer].to_s.should eql("0")
-      end
+    it 'accepts integers' do
+      integers = ['0', '13', '9']
 
-      it 'accepts mulit-digit integer' do
-        @parser.parse("13")[:integer].to_s.should eql("13")
-      end
-
-      it 'accepts single-digit integer' do
-        @parser.parse("9")[:integer].to_s.should eql("9")
+      integers.each do |i|
+        @parser.parse(i)[:integer].to_s.should eql(i)
       end
     end
 
-    describe 'fraction' do
-      it 'accepts fraction' do
-        @parser.parse(".1")[:fraction].to_s.should eql(".1")
+    it 'accepts fractions' do
+      floats = ["1.1", "13.33333"]
+
+      floats.each do |f|
+        @parser.parse(f)[:float].to_s.should eql(f)
       end
     end
 
-    describe 'exponent' do
-      it 'accepts an exponent' do
-        exponents = ["e10", "E10", "e+123", "E+444", "e-1"]
+    it 'accepts an exponents' do
+      exponents = ["1e10", "1E10", "12e+123", "12E+444", "0e-1"]
 
-        exponents.each do |e|
-          @parser.parse(e)[:exponent].to_s.should eql(e)
-        end
+      exponents.each do |e|
+        @parser.parse(e)[:float].to_s.should eql(e)
       end
     end
   end

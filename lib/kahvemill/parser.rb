@@ -2,7 +2,13 @@ require 'parslet'
 
 class KahveMill::Parser < Parslet::Parser
   rule(:number) do
-    integer.as(:integer) | fraction.as(:fraction) | exponent.as(:exponent)
+     float.as(:float) | integer.as(:integer)
+  end
+
+  rule(:float) do
+      integer >> fraction |
+      integer >> exponent |
+      integer >> fraction >> exponent
   end
 
   rule(:integer) { digit >> digit.repeat | match('0') }
