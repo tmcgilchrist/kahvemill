@@ -32,7 +32,17 @@ module KahveMill
     end
 
     it 'accepts a name' do
-      @parser.parse('a_name')[:name].to_s.should eql('a_name')
+      ['a_name', 'z____123', 'a123'].each do |name|
+        @parser.parse(name)[:name].to_s.should eql(name)
+      end
+    end
+
+    it 'should not accept malformed names' do
+      ['r$sh', '1_abc', '1eet'].each do |not_names|
+        lambda do
+          @parser.parse(not_names)[:name]
+        end.should raise_error Parslet::UnconsumedInput
+      end
     end
 
     it 'accepts a reserved word' do
