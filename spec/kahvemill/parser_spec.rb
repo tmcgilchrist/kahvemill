@@ -30,5 +30,24 @@ module KahveMill
         @parser.parse(e)[:float].to_s.should eql(e)
       end
     end
+
+    it 'accepts a name' do
+      @parser.parse('a_name')[:name].to_s.should eql('a_name')
+    end
+
+    it 'accepts a reserved word' do
+      ["break", "case", "catch", "const", "continue", "default", "delete", "do", "else",
+       "false", "finally", "for", "function", "if", "in", "instanceof", "new", "null",
+       "return", "switch", "this", "throw", "true", "try", "typeof", "var", "void", "while",
+       "with"].each do |word|
+        @parser.parse(word)[:keyword].to_s.should eql(word)
+      end
+    end
+
+    it 'accepts in_or' do
+      ['in_or', 'a_while'].each do |word|
+          @parser.parse(word)[:name].to_s.should eql(word)
+      end
+    end
   end
 end
