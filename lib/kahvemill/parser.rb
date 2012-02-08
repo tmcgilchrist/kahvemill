@@ -1,6 +1,14 @@
+# -*- coding: utf-8 -*-
 require 'parslet'
 
 class KahveMill::Parser < Parslet::Parser
+
+  rule(:string) do
+    (
+     str("'")  >> characters.maybe >> str("'") |
+     str("\"") >> characters.maybe >> str("\"")
+     ).as(:string)
+  end
 
   rule(:name) do
     (keyword.as(:keyword) >> match['A-Za-z0-9_$'].absnt?) |
@@ -34,6 +42,15 @@ class KahveMill::Parser < Parslet::Parser
     match('[0-9]')
   end
 
+  rule(:characters) do
+    (match(/\p{Word}/) | escaped_char).repeat
+  end
+
+  rule(:escaped_char) do
+    match(/[\n\b\f\r\t]/) |
+    match(/\\u[0-9a-fA-F]{4}/)
+  end
+
   rule(:space) do
     match('[\s]').repeat(1)
   end
@@ -43,7 +60,7 @@ class KahveMill::Parser < Parslet::Parser
   end
 
   rule(:literal) do
-    number | name
+    number | string | name
   end
 
   root(:literal)

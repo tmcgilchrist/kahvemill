@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'spec_helper'
 
 module KahveMill
@@ -7,9 +8,18 @@ module KahveMill
       @parser = KahveMill::Parser.new
     end
 
+    it 'accepts empty strings' do
+      strings = ["''", "\"\"", "'föö'", "\"öö\"", "'foo'",
+                 "'\u1234'", "'\u0041'", "'\b'"
+                ]
+      strings.each do |str|
+        puts str
+        @parser.parse(str)[:string].to_s.should eql(str)
+      end
+    end
+
     it 'accepts integers' do
       integers = ['0', '13', '9']
-
       integers.each do |i|
         @parser.parse(i)[:integer].to_s.should eql(i)
       end
@@ -17,7 +27,6 @@ module KahveMill
 
     it 'accepts fractions' do
       floats = ["1.1", "13.33333"]
-
       floats.each do |f|
         @parser.parse(f)[:float].to_s.should eql(f)
       end
@@ -25,7 +34,6 @@ module KahveMill
 
     it 'accepts an exponents' do
       exponents = ["1e10", "1E10", "12e+123", "12E+444", "0e-1"]
-
       exponents.each do |e|
         @parser.parse(e)[:float].to_s.should eql(e)
       end
