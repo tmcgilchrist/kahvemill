@@ -11,12 +11,12 @@ class KahveMill::Parser < Parslet::Parser
   end
 
   rule(:statement) do
-    var_statement |
+    var_statement | disruptive_statement |
       number | string | name | keyword
   end
 
   rule(:var_statement) do
-      str("var").as(:keyword) >> var_statement_2.as(:var_statement) >> var_statement_1.repeat >> str(";")
+    str("var").as(:keyword) >> var_statement_2.as(:var_statement) >> var_statement_1.repeat >> str(";")
   end
 
   rule(:var_statement_1) do
@@ -26,6 +26,13 @@ class KahveMill::Parser < Parslet::Parser
   rule(:var_statement_2) do
     space >> name >> space >> str("=").as(:assign) >> space? >> expression >> space?
   end
+
+  rule(:disruptive_statement) do
+    str("break") >> space? >> name >> space? >> str(";") |
+      str("return") >> space? >> statement >> space? >> str(";") |
+      str("throw") >> space? >> statement >> space? >> str(";")
+  end
+
 
   rule(:expression) do
     name | literal
