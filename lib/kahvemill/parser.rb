@@ -10,6 +10,31 @@ class KahveMill::Parser < Parslet::Parser
      ).as(:string)
   end
 
+  rule(:statement) do
+    var_statement |
+      number | string | name | keyword
+  end
+
+  rule(:var_statement) do
+      str("var").as(:keyword) >> var_statement_2.as(:var_statement) >> var_statement_1.repeat >> str(";")
+  end
+
+  rule(:var_statement_1) do
+    str(",") >> var_statement_2.as(:var_statement)
+  end
+
+  rule(:var_statement_2) do
+    space >> name >> space >> str("=").as(:assign) >> space? >> expression >> space?
+  end
+
+  rule(:expression) do
+    name | literal
+  end
+
+  rule(:literal) do
+    number
+  end
+
   rule(:name) do
     (keyword.as(:keyword) >> match['A-Za-z0-9_$'].absnt?) |
       (match('[A-Za-z]') >> match('[A-Za-z0-9_]').repeat).as(:name)
@@ -59,9 +84,9 @@ class KahveMill::Parser < Parslet::Parser
     space.maybe
   end
 
-  rule(:literal) do
-    number | string | name
+  rule(:expression) do
+    statement
   end
 
-  root(:literal)
+  root(:expression)
 end
