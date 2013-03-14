@@ -85,6 +85,13 @@ describe KahveMill::Parser do
       end
     end
 
+    describe "if statements" do
+      it "accepts simple if statements" do
+        expect(expr_parser).to parse("if (true) { return true; }")
+        expect(expr_parser).to parse("if (true) { var i = 5; return i; }")
+      end
+    end
+
     describe "try statements" do
       it "accepts simple try statement" do
         expect(expr_parser).to parse("try { return something; } catch (foo)")

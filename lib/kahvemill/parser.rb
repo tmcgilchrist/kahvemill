@@ -4,8 +4,12 @@ require 'parslet'
 class KahveMill::Parser < Parslet::Parser
 
   rule(:statement) do
-    var_statement | disruptive_statement | try_statement |
+    var_statement | disruptive_statement | try_statement | if_statement |
       number | string | name | keyword
+  end
+
+  rule(:if_statement) do
+    str("if") >> space? >> str("(") >> space? >> expression_ >> space? >> str(")") >> block
   end
 
   rule(:try_statement) do
@@ -32,12 +36,16 @@ class KahveMill::Parser < Parslet::Parser
       str("throw") >> space? >> statement >> semicolon
   end
 
+  rule(:expression_) do
+    literal | name | boolean
+  end
+
   rule(:block) do
-    str("{") >> space? >> statement.repeat(1) >> space? >> str("}")
+    space? >> str("{") >> space? >> statement.repeat(1) >> space? >> str("}") >> space?
   end
 
   rule(:literal) do
-    number | string
+    number | string | boolean
   end
 
   rule(:name) do
@@ -74,6 +82,10 @@ class KahveMill::Parser < Parslet::Parser
   rule(:integer) { digit >> digit.repeat | match('0') }
   rule(:fraction) { match('\.') >> digit.repeat }
   rule(:exponent) { match('[eE]') >> match('[-+]').maybe >> digit.repeat }
+
+  rule(:boolean) do
+    str("true") | str("false")
+  end
 
   rule(:semicolon) do
     space? >> str(";") >> space?
