@@ -85,6 +85,20 @@ describe KahveMill::Parser do
       end
     end
 
+    describe "try statements" do
+      it "accepts simple try statement" do
+        expect(expr_parser).to parse("try { return something; } catch (foo)")
+      end
+
+      it "accepts complex try statement" do
+        expect(expr_parser).to parse("try { var i = 0; return something;  } catch ( foo )")
+      end
+      it "rejects invalid try statements" do
+        expect(expr_parser).to_not parse("try { var i = 0; return something;  } catch ()")
+        expect(expr_parser).to_not parse("try { var i = 0; return something;  } ")
+      end
+    end
+
     describe "disruptive statements" do
       it "accepts break statement" do
         expect(expr_parser).to parse("break some_name;")

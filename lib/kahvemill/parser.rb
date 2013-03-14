@@ -4,8 +4,13 @@ require 'parslet'
 class KahveMill::Parser < Parslet::Parser
 
   rule(:statement) do
-    var_statement | disruptive_statement |
+    var_statement | disruptive_statement | try_statement |
       number | string | name | keyword
+  end
+
+  rule(:try_statement) do
+    # try -> block -> catch -> ( name ) -> block
+    str("try") >> space? >> block >> space? >> str("catch") >> space? >> str("(") >> space? >> name >> space? >> str(")")
   end
 
   rule(:var_statement) do
@@ -25,6 +30,10 @@ class KahveMill::Parser < Parslet::Parser
     str("break") >> space? >> name >> semicolon |
       str("return") >> space? >> statement >> semicolon |
       str("throw") >> space? >> statement >> semicolon
+  end
+
+  rule(:block) do
+    str("{") >> space? >> statement.repeat(1) >> space? >> str("}")
   end
 
   rule(:literal) do
