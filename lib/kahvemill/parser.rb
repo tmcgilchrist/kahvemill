@@ -3,20 +3,13 @@ require 'parslet'
 
 class KahveMill::Parser < Parslet::Parser
 
-  rule(:string) do
-    (
-     str("'")  >> characters.maybe >> str("'") |
-     str("\"") >> characters.maybe >> str("\"")
-     ).as(:string)
-  end
-
   rule(:statement) do
     var_statement | disruptive_statement |
       number | string | name | keyword
   end
 
   rule(:var_statement) do
-    str("var").as(:keyword) >> var_statement_2.as(:var_statement) >> var_statement_1.repeat >> str(";")
+    str("var").as(:keyword) >> var_statement_2.as(:var_statement) >> var_statement_1.repeat >> semicolon
   end
 
   rule(:var_statement_1) do
@@ -24,22 +17,18 @@ class KahveMill::Parser < Parslet::Parser
   end
 
   rule(:var_statement_2) do
-    space >> name >> space >> str("=").as(:assign) >> space? >> expression >> space?
+    space >> name >> space >> str("=").as(:assign) >> space? >> name >> space? |
+      space >> name >> space >> str("=").as(:assign) >> space? >> literal >> space?
   end
 
   rule(:disruptive_statement) do
-    str("break") >> space? >> name >> space? >> str(";") |
-      str("return") >> space? >> statement >> space? >> str(";") |
-      str("throw") >> space? >> statement >> space? >> str(";")
-  end
-
-
-  rule(:expression) do
-    name | literal
+    str("break") >> space? >> name >> semicolon |
+      str("return") >> space? >> statement >> semicolon |
+      str("throw") >> space? >> statement >> semicolon
   end
 
   rule(:literal) do
-    number
+    number | string
   end
 
   rule(:name) do
@@ -56,6 +45,13 @@ class KahveMill::Parser < Parslet::Parser
      RESERVED_WORDS.map {|w| str(w)  }.inject {|l,r| l  | r }
   end
 
+  rule(:string) do
+    (
+     str("'")  >> characters.maybe >> str("'") |
+     str("\"") >> characters.maybe >> str("\"")
+     ).as(:string)
+  end
+
   rule(:number) do
      float.as(:float) | integer.as(:integer)
   end
@@ -69,6 +65,10 @@ class KahveMill::Parser < Parslet::Parser
   rule(:integer) { digit >> digit.repeat | match('0') }
   rule(:fraction) { match('\.') >> digit.repeat }
   rule(:exponent) { match('[eE]') >> match('[-+]').maybe >> digit.repeat }
+
+  rule(:semicolon) do
+    space? >> str(";") >> space?
+  end
 
   rule(:digit) do
     match('[0-9]')
