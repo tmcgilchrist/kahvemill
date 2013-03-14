@@ -9,7 +9,7 @@ class KahveMill::Parser < Parslet::Parser
   end
 
   rule(:if_statement) do
-    str("if") >> space? >> str("(") >> space? >> expression_ >> space? >> str(")") >> block
+    str("if") >> space? >> str("(") >> space? >> expression_ >> space? >> str(")") >> block >> (str("else") >> block).maybe
   end
 
   rule(:try_statement) do
