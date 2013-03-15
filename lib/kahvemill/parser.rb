@@ -4,8 +4,12 @@ require 'parslet'
 class KahveMill::Parser < Parslet::Parser
 
   rule(:statement) do
-    var_statement | disruptive_statement | try_statement | if_statement |
+    var_statement | disruptive_statement | try_statement | if_statement | while_statement |
       number | string | name | keyword
+  end
+
+  rule(:while_statement) do
+    str("while") >> space? >> str("(") >> space? >> expression_ >> space? >> str(")") >> block
   end
 
   rule(:if_statement) do

@@ -85,6 +85,14 @@ describe KahveMill::Parser do
       end
     end
 
+    describe "while statements" do
+      it "accepts simple while statements" do
+        expect(expr_parser).to parse("while (true) { return 0; }")
+        expect(expr_parser).to parse("while (true) { \n var i = 0; \n}")
+        expect(expr_parser).to parse("while (true) { var i = 5;\n return i; \n}")
+      end
+    end
+
     describe "if statements" do
       it "accepts simple if statements" do
         expect(expr_parser).to parse("if (true) { return true; }")
