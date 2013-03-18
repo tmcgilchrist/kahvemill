@@ -5,20 +5,25 @@ class KahveMill::Parser < Parslet::Parser
 
   rule(:statement) do
     var_statement | disruptive_statement | try_statement | if_statement | while_statement |
+      for_statement |
       number | string | name | keyword
   end
 
+  rule(:for_statement) do
+    str("for") >> open_bracket >> expression_statement >> semicolon >> expression_ >> semicolon >> expression_statement >> close_bracket  >> block
+  end
+
   rule(:while_statement) do
-    str("while") >> space? >> str("(") >> space? >> expression_ >> space? >> str(")") >> block
+    str("while") >> open_bracket >> expression_ >> close_bracket >> block
   end
 
   rule(:if_statement) do
-    str("if") >> space? >> str("(") >> space? >> expression_ >> space? >> str(")") >> block >> (str("else") >> block).maybe
+    str("if") >> open_bracket >> expression_ >> close_bracket >> block >> (str("else") >> block).maybe
   end
 
   rule(:try_statement) do
     # try -> block -> catch -> ( name ) -> block
-    str("try") >> space? >> block >> space? >> str("catch") >> space? >> str("(") >> space? >> name >> space? >> str(")")
+    str("try") >> space? >> block >> space? >> str("catch") >> open_bracket >> name >> close_bracket
   end
 
   rule(:var_statement) do
@@ -41,7 +46,18 @@ class KahveMill::Parser < Parslet::Parser
   end
 
   rule(:expression_) do
-    literal | name | boolean
+    literal | name |
+      expression_ >> space? >> infix_operator >> space? >> expression_
+  end
+
+  rule(:expression_statement) do
+    name >> space? >> str("=") >> space? >> expression_ |
+      name >> space? >> str("+=") >> space? >> expression_
+  end
+
+  rule(:infix_operator) do
+    str("*") | str("/") | str("%") | str("+") | str("-") | str(">=") | str("<=") | str(">") |
+      str("<") | str("===") | str("!==") | str("||") | str("&&")
   end
 
   rule(:block) do
@@ -91,6 +107,14 @@ class KahveMill::Parser < Parslet::Parser
     str("true") | str("false")
   end
 
+  rule(:open_bracket) do
+    space? >> str("(") >> space?
+  end
+
+  rule(:close_bracket) do
+    space? >> str(")") >> space?
+  end
+
   rule(:semicolon) do
     space? >> str(";") >> space?
   end
@@ -106,6 +130,10 @@ class KahveMill::Parser < Parslet::Parser
   rule(:escaped_char) do
     match(/[\n\b\f\r\t]/) |
     match(/\\u[0-9a-fA-F]{4}/)
+  end
+
+  rule(:semicolon) do
+    space? >> str(";") >> space?
   end
 
   rule(:space) do

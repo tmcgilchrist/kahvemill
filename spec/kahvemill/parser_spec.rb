@@ -93,6 +93,12 @@ describe KahveMill::Parser do
       end
     end
 
+    describe "for statements" do
+      it "accepts valid statements" do
+        expect(expr_parser).to parse("for (i = 0; true; i+=1) { return i; }")
+      end
+    end
+
     describe "if statements" do
       it "accepts simple if statements" do
         expect(expr_parser).to parse("if (true) { return true; }")
