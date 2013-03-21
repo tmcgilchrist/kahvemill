@@ -25,16 +25,16 @@ class KahveMill::Parser < Parslet::Parser
   end
 
   rule(:var_statement) do
-    str("var").as(:keyword) >> var_statement_2.as(:var_statement) >> var_statement_1.repeat >> semicolon
+    str("var") >> var_statement_2 >> var_statement_1.repeat >> semicolon
   end
 
   rule(:var_statement_1) do
-    str(",") >> var_statement_2.as(:var_statement)
+    str(",") >> var_statement_2
   end
 
   rule(:var_statement_2) do
-    space >> name >> space >> str("=").as(:assign) >> space? >> name >> space? |
-      space >> name >> space >> str("=").as(:assign) >> space? >> literal >> space?
+    space >> name.as(:key) >> space >> str("=") >> space? >> name.as(:value) >> space? |
+      space >> name.as(:key) >> space >> str("=") >> space? >> literal.as(:value) >> space?
   end
 
   rule(:disruptive_statement) do
@@ -86,13 +86,13 @@ class KahveMill::Parser < Parslet::Parser
 
   rule(:string) do
     (
-     str("'")  >> characters.maybe >> str("'") |
-     str("\"") >> characters.maybe >> str("\"")
-     ).as(:string)
+     str("'")  >> characters.maybe.as(:string) >> str("'") |
+     str("\"") >> characters.maybe.as(:string) >> str("\"")
+     )
   end
 
   rule(:number) do
-     float.as(:float) | integer.as(:integer)
+    (float | integer).as(:number)
   end
 
   rule(:float) do

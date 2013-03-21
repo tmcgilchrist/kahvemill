@@ -24,6 +24,11 @@ describe KahveMill::Parser do
         expect(expr_parser).to parse("'\u0041'")
         expect(expr_parser).to parse("'\b'")
       end
+
+      it "parses into {string: 'characters'}" do
+        expect(expr_parser.parse(%q{'sonnet'})).to eq :string =>"sonnet"
+        expect(expr_parser.parse(%q{''})).to eq :string =>""
+      end
     end
 
     context "numbers" do
@@ -45,6 +50,12 @@ describe KahveMill::Parser do
         expect(expr_parser).to parse("12E+444")
         expect(expr_parser).to parse("0e-1")
       end
+
+      it "parses into {number: 'digits'}" do
+        expect(expr_parser.parse(%q{13})).to eq :number =>"13"
+        expect(expr_parser.parse(%q{1e10})).to eq :number =>"1e10"
+        expect(expr_parser.parse(%q{0e-1})).to eq :number =>"0e-1"
+      end
     end
 
     describe "names" do
@@ -58,6 +69,10 @@ describe KahveMill::Parser do
         expect(expr_parser).to_not parse('r$sh')
         expect(expr_parser).to_not parse('1_abc')
         expect(expr_parser).to_not parse('1eet')
+      end
+
+      it "parses into {name: 'characters'}" do
+        expect(expr_parser.parse(%q{a_name})).to eq :name =>"a_name"
       end
     end
 
@@ -91,6 +106,15 @@ describe KahveMill::Parser do
 
       it "accepts commas between statements" do
         expect(expr_parser).to parse("var other = 1, another = 13, other = 1;")
+      end
+
+      it "parses into {key: 'string', value: 'value'}" do
+        expect(expr_parser.parse("var name = 0;")).to eq({key: {name: 'name'}, value: {number:"0"}})
+      end
+
+      it "parses into [{key: 'string', value: 'value'}, {key: 'string', value: 'value']" do
+        expect(expr_parser.parse("var name = 0, other = 13;")).to eq([{:key=>{:name=>"name"}, :value=>{:number=>"0"}},
+                                                                      {:key=>{:name=>"other"}, :value=>{:number=>"13"}}])
       end
     end
 
