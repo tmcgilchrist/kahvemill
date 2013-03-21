@@ -74,6 +74,15 @@ describe KahveMill::Parser do
   context "statement parsing" do
     let(:expr_parser) { parser.expression }
 
+    describe "expression statements" do
+      it "accepts" do
+        expect(expr_parser).to parse("name = typeof object")
+        expect(expr_parser).to parse("name = ! true")
+        expect(expr_parser).to parse("name = -10")
+        expect(expr_parser).to parse("name = +10")
+      end
+    end
+
     describe "var statements" do
       it "accept a simple var statement" do
         expect(expr_parser).to parse("var name = 0;")
@@ -90,12 +99,16 @@ describe KahveMill::Parser do
         expect(expr_parser).to parse("while (true) { return 0; }")
         expect(expr_parser).to parse("while (true) { \n var i = 0; \n}")
         expect(expr_parser).to parse("while (true) { var i = 5;\n return i; \n}")
+
+        expect(expr_parser).to parse("while (i <= 10) { return 0; }")
       end
     end
 
     describe "for statements" do
       it "accepts valid statements" do
         expect(expr_parser).to parse("for (i = 0; true; i+=1) { return i; }")
+        expect(expr_parser).to parse("for (i = 0 ; i <= 7; i+=1) { return i; }")
+        expect(expr_parser).to parse("for (i = 0 ; (i <= 7); i+=1) { return i; }")
       end
     end
 

@@ -4,9 +4,8 @@ require 'parslet'
 class KahveMill::Parser < Parslet::Parser
 
   rule(:statement) do
-    var_statement | disruptive_statement | try_statement | if_statement | while_statement |
-      for_statement |
-      number | string | name | keyword
+    var_statement | expression_statement | disruptive_statement | try_statement | if_statement | while_statement |
+      for_statement | number | string | name | keyword
   end
 
   rule(:for_statement) do
@@ -22,8 +21,7 @@ class KahveMill::Parser < Parslet::Parser
   end
 
   rule(:try_statement) do
-    # try -> block -> catch -> ( name ) -> block
-    str("try") >> space? >> block >> space? >> str("catch") >> open_bracket >> name >> close_bracket
+    str("try") >> block >> str("catch") >> open_bracket >> name >> close_bracket
   end
 
   rule(:var_statement) do
@@ -46,8 +44,13 @@ class KahveMill::Parser < Parslet::Parser
   end
 
   rule(:expression_) do
-    literal | name |
-      expression_ >> space? >> infix_operator >> space? >> expression_
+    literal | name >> (infix_operator >> (literal|name)).maybe |
+      open_bracket >> expression_ >> close_bracket |
+      prefix_operator >> expression_
+  end
+
+  rule(:prefix_operator) do
+    space? >> (str("typeof") | str("+") | str("-") | str("!")) >> space?
   end
 
   rule(:expression_statement) do
@@ -56,8 +59,7 @@ class KahveMill::Parser < Parslet::Parser
   end
 
   rule(:infix_operator) do
-    str("*") | str("/") | str("%") | str("+") | str("-") | str(">=") | str("<=") | str(">") |
-      str("<") | str("===") | str("!==") | str("||") | str("&&")
+    space? >> (str("*") | str("/") | str("%") | str("+") | str("-") | str(">=") | str("<=") | str(">") | str("<") | str("===") | str("!==") | str("||") | str("&&")) >> space?
   end
 
   rule(:block) do
